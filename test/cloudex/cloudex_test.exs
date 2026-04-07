@@ -5,7 +5,7 @@ defmodule CloudexTest do
   @json_library Application.get_env(:cloudex, :json_library, Jason)
 
   setup_all do
-    ExVCR.Config.cassette_library_dir("test/assets/vcr_cassettes")
+    ExVCR.Config.cassette_library_dir("fixture/vcr_cassettes")
     :ok
   end
 
@@ -19,6 +19,13 @@ defmodule CloudexTest do
   test "upload single image file" do
     use_cassette "test_upload" do
       assert {:ok, %Cloudex.UploadedImage{}} = Cloudex.upload("test/assets/test.jpg")
+    end
+  end
+
+  test "upload pdf file includes page count" do
+    use_cassette "test_upload_pdf" do
+      assert {:ok, %Cloudex.UploadedImage{pages: 3, format: "pdf"}} =
+               Cloudex.upload("test/assets/test.pdf")
     end
   end
 
@@ -164,5 +171,7 @@ defmodule CloudexTest do
              version: 1_448_618_543,
              width: 250
            } = result
+
+    assert result.raw == data
   end
 end

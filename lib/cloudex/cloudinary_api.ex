@@ -11,6 +11,16 @@ defmodule Cloudex.CloudinaryApi do
 
   @json_library Application.get_env(:cloudex, :json_library, Jason)
 
+  # Keys that map to `UploadedImage` fields (except `raw`/`source`). Only these are atomized;
+  # the complete response stays in `raw` with string keys.
+  @upload_json_field_names (
+    %Cloudex.UploadedImage{}
+    |> Map.from_struct()
+    |> Map.keys()
+    |> Enum.reject(&(&1 in [:raw, :source]))
+    |> MapSet.new(&Atom.to_string/1)
+  )
+
   @doc """
   Upload either a file or url to cloudinary
   `opts` can contain:
@@ -75,12 +85,26 @@ defmodule Cloudex.CloudinaryApi do
   end
 
   @doc """
-    Converts the json result from cloudinary to a %UploadedImage{} struct
+    Converts the json result from cloudinary to a %UploadedImage{} struct.
+
+  Populates known struct fields from the JSON and sets `raw` to the full response map
+  (string keys) so optional or newly added Cloudinary fields are always available.
   """
   @spec json_result_to_struct(map, String.t()) :: %Cloudex.UploadedImage{}
-  def json_result_to_struct(result, source) do
-    converted = Enum.map(result, fn {k, v} -> {String.to_atom(k), v} end) ++ [source: source]
-    struct(%Cloudex.UploadedImage{}, converted)
+  def json_result_to_struct(result, source) when is_map(result) do
+    from_json =
+      for {k, v} <- result,
+          is_binary(k),
+          MapSet.member?(@upload_json_field_names, k),
+          into: %{} do
+        {String.to_atom(k), v}
+      end
+
+    # `raw` and `source` must win over any homonymous keys in the API payload.
+    struct(
+      %Cloudex.UploadedImage{},
+      Map.merge(from_json, %{source: source, raw: result})
+    )
   end
 
   @spec upload_file(String.t(), map) :: {:ok, %Cloudex.UploadedImage{}} | {:error, any}
