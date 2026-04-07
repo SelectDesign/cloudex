@@ -19,6 +19,9 @@ defmodule Cloudex.UploadedImage do
   * secure_url
   * original_filename
   * phash
+  * pages
+  * raw — full upload API response map as returned by `Jason.decode/1` (string keys),
+    including any fields Cloudinary adds. Use this when you need keys not listed above.
   """
 
   @type t :: %__MODULE__{
@@ -28,9 +31,11 @@ defmodule Cloudex.UploadedImage do
           format: String.t() | nil,
           height: non_neg_integer | nil,
           moderation: [String.t()] | [] | nil,
+          pages: non_neg_integer | nil,
           original_filename: String.t() | nil,
           phash: String.t() | nil,
           public_id: String.t() | nil,
+          raw: map() | nil,
           resource_type: String.t() | nil,
           secure_url: String.t() | nil,
           signature: String.t() | nil,
@@ -49,9 +54,11 @@ defmodule Cloudex.UploadedImage do
             format: nil,
             height: nil,
             moderation: nil,
+            pages: nil,
             original_filename: nil,
             phash: nil,
             public_id: nil,
+            raw: nil,
             resource_type: nil,
             secure_url: nil,
             signature: nil,
