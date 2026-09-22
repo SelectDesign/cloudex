@@ -9,7 +9,7 @@ defmodule Cloudex.CloudinaryApi do
     {"Accept", "application/json"}
   ]
 
-  @json_library Application.get_env(:cloudex, :json_library, Jason)
+  @json_library Application.compile_env(:cloudex, :json_library, Jason)
 
   # Keys that map to `UploadedImage` fields (except `raw`/`source`). Only these are atomized;
   # the complete response stays in `raw` with string keys.
