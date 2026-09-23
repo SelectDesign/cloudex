@@ -89,6 +89,8 @@ defmodule Cloudex.CloudinaryApi do
   (string keys) so optional or newly added Cloudinary fields are always available.
   """
   @spec json_result_to_struct(map, String.t()) :: %Cloudex.UploadedImage{}
+  # sobelow_skip because the atoms created are limited to @upload_json_field_names
+  # sobelow_skip["DOS.StringToAtom"]
   def json_result_to_struct(result, source) when is_map(result) do
     from_json =
       for {k, v} <- result,

@@ -42,5 +42,7 @@ jobs:
       # This project has existing credo issues that need to be resolved before this can run in CI.
       #- name: Run credo
       #  run: mix credo
+      - name: Run sobelow
+        run: mix sobelow -v --skip --exit low
       - name: Run tests
         run: mix test
