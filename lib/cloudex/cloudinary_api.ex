@@ -51,7 +51,7 @@ defmodule Cloudex.CloudinaryApi do
   @doc """
   Deletes an image given a public id
   """
-  @spec delete(String.t(), map) :: {:ok, %Cloudex.DeletedImage{}} | {:error, any}
+  @spec delete(String.t(), map) :: {:ok, Cloudex.DeletedImage.t()} | {:error, any}
   def delete(item, opts \\ %{})
 
   def delete(item, opts) when is_bitstring(item) do
@@ -88,7 +88,7 @@ defmodule Cloudex.CloudinaryApi do
   Populates known struct fields from the JSON and sets `raw` to the full response map
   (string keys) so optional or newly added Cloudinary fields are always available.
   """
-  @spec json_result_to_struct(map, String.t()) :: %Cloudex.UploadedImage{}
+  @spec json_result_to_struct(map, String.t()) :: Cloudex.UploadedImage.t()
   # sobelow_skip because the atoms created are limited to @upload_json_field_names
   # sobelow_skip["DOS.StringToAtom"]
   def json_result_to_struct(result, source) when is_map(result) do
@@ -107,7 +107,7 @@ defmodule Cloudex.CloudinaryApi do
     )
   end
 
-  @spec upload_file(String.t(), map) :: {:ok, %Cloudex.UploadedImage{}} | {:error, any}
+  @spec upload_file(String.t(), map) :: {:ok, Cloudex.UploadedImage.t()} | {:error, any}
   defp upload_file(file_path, opts) do
     options =
       opts
@@ -127,7 +127,7 @@ defmodule Cloudex.CloudinaryApi do
     Map.delete(opts, :resource_type)
   end
 
-  @spec upload_url(String.t(), map) :: {:ok, %Cloudex.UploadedImage{}} | {:error, any}
+  @spec upload_url(String.t(), map) :: {:ok, Cloudex.UploadedImage.t()} | {:error, any}
   defp upload_url(url, opts) do
     opts
     |> Map.merge(%{file: url})
@@ -173,7 +173,7 @@ defmodule Cloudex.CloudinaryApi do
     "#{@base_url}#{Cloudex.Settings.get(:cloud_name)}/resources/#{resource_type}/upload?prefix=#{prefix}"
   end
 
-  @spec post(tuple | String.t(), binary, map) :: {:ok, %Cloudex.UploadedImage{}} | {:error, any}
+  @spec post(tuple | String.t(), binary, map) :: {:ok, Cloudex.UploadedImage.t()} | {:error, any}
   defp post(body, source, opts) do
     with {:ok, raw_response} <- common_post(body, opts),
          {:ok, response} <- @json_library.decode(raw_response.body),
@@ -207,7 +207,7 @@ defmodule Cloudex.CloudinaryApi do
     "#{@base_url}#{Cloudex.Settings.get(:cloud_name)}/#{resource_type}/upload"
   end
 
-  @spec handle_response(map, String.t()) :: {:error, any} | {:ok, %Cloudex.UploadedImage{}}
+  @spec handle_response(map, String.t()) :: {:error, any} | {:ok, Cloudex.UploadedImage.t()}
   defp handle_response(
          %{
            "error" => %{
