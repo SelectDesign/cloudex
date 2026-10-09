@@ -32,7 +32,7 @@ defmodule Cloudex.Mixfile do
 
   defp deps do
     [
-      {:credo, "~> 1.7.19", only: :dev, runtime: false},
+      {:credo, "~> 1.7.19", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.40.0", only: :dev},
       {:exvcr, "~> 0.17.1", [only: :test]},
       # Matches Brandhub and RTA
