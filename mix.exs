@@ -14,28 +14,11 @@ defmodule Cloudex.Mixfile do
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      dialyzer: [
-        plt_add_deps: true,
-        ignore_warnings: "dialyzer.ignore-warnings",
-        flags: [
-          :error_handling,
-          :race_conditions,
-          :unknown,
-          :unmatched_returns
-        ]
-      ],
       preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test,
         vcr: :test,
         "vcr.delete": :test,
         "vcr.check": :test,
         "vcr.show": :test
-      ],
-      test_coverage: [
-        tool: ExCoveralls
       ]
     ]
   end
@@ -49,19 +32,18 @@ defmodule Cloudex.Mixfile do
 
   defp deps do
     [
-      {:credo, "> 0.0.0", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
-      {:earmark, "> 0.0.0", only: :dev},
-      {:ex_doc, "> 0.0.0", only: :dev},
-      {:excoveralls, "> 0.0.0", only: :test},
-      {:exvcr, "~> 0.10", [only: :test]},
-      # Upgrading to be compatible with elixir 1.15
-      {:httpoison, "~> 1.8"},
-      {:mix_test_watch, "> 0.0.0", only: :dev},
-      {:jason, "~> 1.0", optional: true},
-      {:sobelow, "~> 0.15", only: [:dev, :test], runtime: false, warn_if_outdated: true},
-      {:timex, "~> 3.6"},
-      {:tzdata, "~> 1.0"}
+      {:credo, "~> 1.7.19", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.40.0", only: :dev},
+      {:exvcr, "~> 0.17.1", [only: :test]},
+      # Matches Brandhub and RTA
+      {:httpoison, "~> 1.8.0"},
+      # mix_test_watch 1.4.0 requires elixir 1.18
+      {:mix_test_watch, "~> 1.3.0", only: :dev},
+      {:jason, "~> 1.4.0", optional: true},
+      {:sobelow, "~> 0.16", only: [:dev, :test], runtime: false, warn_if_outdated: true},
+      {:timex, "~> 3.7.13"},
+      # Matches Brandhub and RTA
+      {:tzdata, "~> 1.1.0"}
     ]
   end
 
