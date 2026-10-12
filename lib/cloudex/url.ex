@@ -132,11 +132,8 @@ defmodule Cloudex.Url do
   defp format(%{format: format}), do: ".#{format}"
   defp format(_), do: ""
 
-  defp transformation_string_from(options) when is_list(options) do
-    options
-    |> Enum.map(&transformation_string_from/1)
-    |> Enum.join("/")
-  end
+  defp transformation_string_from(options) when is_list(options),
+    do: Enum.map_join(options, "/", &transformation_string_from/1)
 
   defp transformation_string_from(options) when is_map(options) do
     options
