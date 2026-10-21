@@ -180,14 +180,20 @@ defmodule CloudexTest do
     end
 
     test "upload waits for the upload task up to task_timeout" do
-      Application.put_env(:cloudex, :task_timeout, 0)
+      Application.put_env(:cloudex, :task_timeout, 50)
 
-      use_cassette "test_upload" do
-        assert {:timeout, {Task, :await, [task, 0]}} =
-                 catch_exit(Cloudex.upload("test/assets/test.jpg"))
+      # Block the request so the task cannot finish before Task.await/2 times out
+      :meck.new(HTTPoison, [:passthrough])
 
-        Task.shutdown(task, :brutal_kill)
-      end
+      :meck.expect(HTTPoison, :request, fn _method, _url, _body, _headers, _options ->
+        Process.sleep(:infinity)
+      end)
+
+      assert {:timeout, {Task, :await, [task, 50]}} =
+               catch_exit(Cloudex.upload("https://example.com/test.jpg"))
+
+      Task.shutdown(task, :brutal_kill)
+      :meck.unload(HTTPoison)
     end
   end
 

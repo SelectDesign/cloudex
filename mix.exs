@@ -40,6 +40,7 @@ defmodule Cloudex.Mixfile do
       # mix_test_watch 1.4.0 requires elixir 1.18
       {:mix_test_watch, "~> 1.3.0", only: :dev},
       {:jason, "~> 1.4.0", optional: true},
+      {:meck, "~> 1.2.0", only: :test},
       {:sobelow, "~> 0.16", only: [:dev, :test], runtime: false, warn_if_outdated: true},
       {:timex, "~> 3.7.13"},
       # Matches Brandhub and RTA
