@@ -1,3 +1,8 @@
+# 1.4.3 (2026-10-21)
+
+  - Add `config :cloudex, :http_options` (passed to HTTPoison, e.g. `timeout` and `recv_timeout`) so slow uploads, such as Cloudinary fetching a large remote URL, are not cut off by HTTPoison's 5s default receive timeout.
+  - Add `config :cloudex, :task_timeout` (default 60s) for the `Task.await/2` in `Cloudex.upload/2`, `Cloudex.delete/2`, and `Cloudex.delete_prefix/1`.
+
 # 1.4.2 (2026-04-07)
 
   - Preserve Cloudinary upload `pages` (e.g. PDF page count) on `Cloudex.UploadedImage`.
