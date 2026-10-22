@@ -147,6 +147,56 @@ defmodule CloudexTest do
     end
   end
 
+  describe "configurable timeouts" do
+    setup do
+      on_exit(fn ->
+        Application.delete_env(:cloudex, :http_options)
+        Application.delete_env(:cloudex, :task_timeout)
+      end)
+    end
+
+    test "http_options only sends basic auth by default" do
+      assert Cloudex.CloudinaryApi.http_options() == [
+               hackney: [basic_auth: {"my_key", "my_secret"}]
+             ]
+    end
+
+    test "http_options adds basic auth to the configured HTTPoison options" do
+      Application.put_env(:cloudex, :http_options,
+        timeout: 30_000,
+        recv_timeout: 180_000,
+        hackney: [pool: :cloudinary]
+      )
+
+      http_options = Cloudex.CloudinaryApi.http_options()
+
+      assert http_options[:timeout] == 30_000
+      assert http_options[:recv_timeout] == 180_000
+
+      assert Enum.sort(http_options[:hackney]) == [
+               basic_auth: {"my_key", "my_secret"},
+               pool: :cloudinary
+             ]
+    end
+
+    test "upload waits for the upload task up to task_timeout" do
+      Application.put_env(:cloudex, :task_timeout, 50)
+
+      # Block the request so the task cannot finish before Task.await/2 times out
+      :meck.new(HTTPoison, [:passthrough])
+
+      :meck.expect(HTTPoison, :request, fn _method, _url, _body, _headers, _options ->
+        Process.sleep(:infinity)
+      end)
+
+      assert {:timeout, {Task, :await, [task, 50]}} =
+               catch_exit(Cloudex.upload("https://example.com/test.jpg"))
+
+      Task.shutdown(task, :brutal_kill)
+      :meck.unload(HTTPoison)
+    end
+  end
+
   test "create a uploaded image from a map" do
     {:ok, data} = @json_library.decode(File.read!("./test/cloudinary_response.json"))
     result = Cloudex.CloudinaryApi.json_result_to_struct(data, "http://example.org/test.jpg")

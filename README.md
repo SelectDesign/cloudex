@@ -45,6 +45,16 @@ or in your config.exs using :
 config :cloudex, :json_library, YourLibraryOfChoice
 ```
 
+Requests use HTTPoison's defaults (8s connect, 5s receive), and each call waits up to 60s for its Task. Uploading a
+large remote URL can take longer because Cloudinary fetches the file before responding. Raise the limits with:
+
+```elixir
+config :cloudex,
+  http_options: [timeout: 30_000, recv_timeout: 180_000],
+  # Must exceed recv_timeout, or the caller exits before HTTPoison gives up
+  task_timeout: 240_000
+```
+
 
 ## Uploading
 You can upload image files or urls pointing to an image as follows :
