@@ -10,7 +10,7 @@ defmodule Cloudex.Mixfile do
         Also provides a helper to generate transformations and cloudinary urls pointing to your images
       """,
       package: package(),
-      elixir: "~> 1.15",
+      elixir: "~> 1.16",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
