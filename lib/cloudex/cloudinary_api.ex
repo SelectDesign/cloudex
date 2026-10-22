@@ -137,19 +137,26 @@ defmodule Cloudex.CloudinaryApi do
     |> post(url, opts)
   end
 
-  defp credentials do
-    [
-      hackney: [
-        basic_auth: {Cloudex.Settings.get(:api_key), Cloudex.Settings.get(:secret)}
-      ]
-    ]
+  @doc """
+  HTTPoison options for every Cloudinary request: `config :cloudex, :http_options` (e.g. `timeout`,
+  `recv_timeout`) with the API credentials added as hackney basic auth.
+  """
+  @spec http_options :: keyword
+  def http_options do
+    http_options = Application.get_env(:cloudex, :http_options, [])
+    basic_auth = {Cloudex.Settings.get(:api_key), Cloudex.Settings.get(:secret)}
+
+    hackney_options =
+      http_options |> Keyword.get(:hackney, []) |> Keyword.put(:basic_auth, basic_auth)
+
+    Keyword.put(http_options, :hackney, hackney_options)
   end
 
   @spec delete_file(bitstring, map) ::
           {:ok, HTTPoison.Response.t() | HTTPoison.AsyncResponse.t()}
           | {:error, HTTPoison.Error.t()}
   defp delete_file(item, opts) do
-    HTTPoison.delete(delete_url_for(opts, item), @cloudinary_headers, credentials())
+    HTTPoison.delete(delete_url_for(opts, item), @cloudinary_headers, http_options())
   end
 
   defp delete_url_for(opts, item) do
@@ -160,7 +167,7 @@ defmodule Cloudex.CloudinaryApi do
           {:ok, HTTPoison.Response.t() | HTTPoison.AsyncResponse.t()}
           | {:error, HTTPoison.Error.t()}
   defp delete_by_prefix(prefix, opts) do
-    HTTPoison.delete(delete_prefix_url_for(opts, prefix), @cloudinary_headers, credentials())
+    HTTPoison.delete(delete_prefix_url_for(opts, prefix), @cloudinary_headers, http_options())
   end
 
   defp delete_prefix_url_for(%{resource_type: resource_type}, prefix) do
@@ -181,7 +188,7 @@ defmodule Cloudex.CloudinaryApi do
   end
 
   defp common_post(body, opts) do
-    HTTPoison.request(:post, url_for(opts), body, @cloudinary_headers, credentials())
+    HTTPoison.request(:post, url_for(opts), body, @cloudinary_headers, http_options())
   end
 
   defp context_to_list(context) do

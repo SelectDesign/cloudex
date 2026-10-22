@@ -30,7 +30,7 @@ defmodule Cloudex do
     upload_results =
       valid_list
       |> Enum.map(&Task.async(Cloudex.CloudinaryApi, :upload, [&1, options]))
-      |> Enum.map(&Task.await(&1, 60_000))
+      |> Enum.map(&Task.await(&1, task_timeout()))
 
     result = upload_results ++ invalid_list
 
@@ -52,7 +52,7 @@ defmodule Cloudex do
   def delete(item, opts \\ %{}) do
     Cloudex.CloudinaryApi
     |> Task.async(:delete, [item, opts])
-    |> Task.await(60_000)
+    |> Task.await(task_timeout())
   end
 
   @doc """
@@ -61,8 +61,12 @@ defmodule Cloudex do
   def delete_prefix(prefix) do
     Cloudex.CloudinaryApi
     |> Task.async(:delete_prefix, [prefix])
-    |> Task.await(60_000)
+    |> Task.await(task_timeout())
   end
+
+  # Each call runs in a Task, so `:task_timeout` must exceed the `recv_timeout` in `:http_options`, or the caller
+  # exits before HTTPoison gives up.
+  defp task_timeout, do: Application.get_env(:cloudex, :task_timeout, 60_000)
 
   @spec sanitize_list(list | String.t(), list) :: [{:ok, String.t()} | {:error, String.t()}]
   defp sanitize_list(list, sanitized_list \\ [])
